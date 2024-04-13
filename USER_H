@@ -1,0 +1,29 @@
+#ifndef USER_H
+#define USER_H
+
+#include <string>
+
+class User {
+private:
+    std::string username;
+    std::string password;
+    std::string role; // "admin" или "manager"
+
+public:
+    User(const std::string& username, const std::string& password, const std::string& role)
+        : username(username), password(password), role(role) {}
+
+    bool checkPassword(const std::string& inputPassword) const {
+        return password == inputPassword;
+    }
+
+    const std::string& getRole() const {
+        return role;
+    }
+
+    const std::string& getUsername() const {
+        return username;
+    }
+};
+
+#endif // USER_H
