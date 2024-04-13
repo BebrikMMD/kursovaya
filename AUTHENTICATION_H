@@ -1,0 +1,31 @@
+#ifndef AUTHENTICATION_H
+#define AUTHENTICATION_H
+
+#include "User.h"
+#include <vector>
+#include <iostream>
+
+class Authentication {
+private:
+    std::vector<User> users;
+
+public:
+    Authentication() {
+        // Здесь можно добавить некоторых предопределенных пользователей
+        users.emplace_back("admin", "admin123", "admin");
+        users.emplace_back("manager", "manager123", "manager");
+    }
+
+    bool login(const std::string& username, const std::string& password) {
+        for (const auto& user : users) {
+            if (user.getUsername() == username && user.checkPassword(password)) {
+                std::cout << "Добро пожаловать, " << user.getRole() << " " << username << "!\n";
+                return true;
+            }
+        }
+        std::cout << "Неверное имя пользователя или пароль.\n";
+        return false;
+    }
+};
+
+#endif // AUTHENTICATION_H
