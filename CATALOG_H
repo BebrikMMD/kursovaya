@@ -1,0 +1,135 @@
+#ifndef CATALOG_H
+#define CATALOG_H
+
+#include "Product.h"
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
+
+class Catalog {
+private:
+    std::vector<Product> products;
+
+public:
+    // Добавление продукта в каталог
+    void addProduct(const Product& product) {
+        if (isIdUnique(product.getId())) {
+            products.push_back(product);
+            std::cout << "Товар добавлен.\n";
+        }
+        else {
+            std::cout << "Ошибка: Товар с таким ID уже существует.\n";
+        }
+    }
+
+    const std::vector<Product>& getProducts() const {
+        return products;
+    }
+
+    bool isIdUnique(int id) const {
+        for (const auto& product : products) {
+            if (product.getId() == id) {
+                return false; // Найден товар с таким же ID
+            }
+        }
+        return true; // Товар с таким ID не найден
+    }
+
+    // Поиск товаров по категории
+    std::vector<Product> findByCategory(const std::string& category) const {
+        std::vector<Product> foundProducts;
+        for (const auto& product : products) {
+            if (product.getCategory() == category) {
+                foundProducts.push_back(product);
+            }
+        }
+        return foundProducts;
+    }
+
+    // Поиск товаров по названию
+    std::vector<Product> findByName(const std::string& name) const {
+        std::vector<Product> foundProducts;
+        for (const auto& product : products) {
+            if (product.getName().find(name) != std::string::npos) {
+                foundProducts.push_back(product);
+            }
+        }
+        return foundProducts;
+    }
+
+    // Сортировка товаров по названию
+    void sortByName() {
+        std::sort(products.begin(), products.end(),
+            [](const Product& a, const Product& b) {
+                return a.getName() < b.getName();
+            });
+    }
+
+    // Сортировка товаров по цене
+    void sortByPrice() {
+        std::sort(products.begin(), products.end(),
+            [](const Product& a, const Product& b) {
+                return a.getPrice() < b.getPrice();
+            });
+    }
+
+    // Сортировка товаров по количеству на складе
+    void sortByQuantity() {
+        std::sort(products.begin(), products.end(),
+            [](const Product& a, const Product& b) {
+                return a.getQuantity() < b.getQuantity();
+            });
+    }
+
+    // Сохранение каталога в файл
+    void saveToFile(const std::string& filename) const {
+        std::ofstream file(filename);
+        for (const auto& product : products) {
+            file << product.getId() << ","
+                << product.getName() << ","
+                << product.getCategory() << ","
+                << product.getPrice() << ","
+                << product.getQuantity() << "\n";
+        }
+    }
+
+    // Загрузка каталога из файла
+    void loadFromFile(const std::string& filename) {
+        std::ifstream file(filename);
+        std::string line;
+        products.clear(); // Очищаем текущий список перед загрузкой
+
+        while (std::getline(file, line)) {
+            std::istringstream iss(line);
+            std::vector<std::string> seglist;
+            std::string segment;
+
+            while (std::getline(iss, segment, ',')) {
+                seglist.push_back(segment);
+            }
+
+            if (seglist.size() == 5) {
+                Product product(std::stoi(seglist[0]), seglist[1], seglist[2], std::stod(seglist[3]), std::stoi(seglist[4]));
+                products.push_back(product);
+            }
+        }
+    }
+    //Удаление позиции
+    void removeProductById(int id) {
+        auto it = std::remove_if(products.begin(), products.end(), [id](const Product& product) {
+            return product.getId() == id;
+            });
+        if (it != products.end()) {
+            products.erase(it, products.end());
+            std::cout << "Товар с ID " << id << " удален.\n";
+        }
+        else {
+            std::cout << "Товар с таким ID не найден.\n";
+        }
+    }
+
+};
+
+#endif // CATALOG_H
